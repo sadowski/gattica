@@ -20,7 +20,11 @@ module Gattica
         { dimension.attributes['name'].split(':').last.to_sym => dimension.attributes['value'].split(':', 1).last }
       end
       @metrics = xml.search('dxp:metric').collect do |metric|
-        { metric.attributes['name'].split(':').last.to_sym => metric.attributes['value'].split(':', 1).last.to_i }
+        # We're adding the 'to_f.to_i' conversion to the google metric value because sometimes
+        # The google metric will come back in scientific notation(eg 3.14E7). When applying 'to_i'
+        # to this value, the result will be '3' because 'to_i' doesn't know how to parse scientific.
+        # However, to_f does, and will return the correct 31400000
+        { metric.attributes['name'].split(':').last.to_sym => metric.attributes['value'].split(':', 1).last.to_f.to_i }
       end
     end
     
